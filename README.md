@@ -1,6 +1,6 @@
 # AiKaan IoT Platform — Vulnerability Report Collection
 
-This repository contains responsible-disclosure technical advisories for multiple security issues discovered in AiKaan IoT Platform (https://www.aikaan.io) mainly Aikaan Cloud Controller (v3.25.0325-5-g2e9c59796 and earlier). These advisories are intended as public references for CVE requests and coordinated disclosure.
+This repository contains responsible-disclosure technical advisories for multiple security issues discovered in AiKaan (https://www.aikaan.io) IoT Platform (v3.25.0325-5-g2e9c59796 and earlier). These advisories are intended as public references for CVE requests and coordinated disclosure.
 
 Repository contents:
 - cve1-shared-ssh-key.md        — Shared SSH private key used across devices (CVE candidate)
