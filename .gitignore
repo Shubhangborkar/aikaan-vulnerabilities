@@ -1,0 +1,3 @@
+# Never commit sensitive artifacts
+*.pem
+*.key
