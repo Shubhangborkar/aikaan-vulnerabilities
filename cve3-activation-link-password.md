@@ -7,7 +7,7 @@ Exposure of Initial Account Password in Activation Link via Query Parameter
 The onboarding flow for AiKaan Cloud Controller sends initial account passwords embedded as query parameters in activation links. These links are delivered over email and, if intercepted or stored (server logs, browser history, proxy logs), expose the cleartext password. An attacker who accesses the link from logs, caches, or other stored copies can obtain the initial password and fully compromise the account.
 
 ## Affected Systems
-Any instance using activation links with passwords in query parameters
+- AiKaan IoT Platform v3.25.0325-5-g2e9c59796 and earlier
 
 ## Root Cause
 Insecure credential transmission via URL query parameters; lack of single-use tokens

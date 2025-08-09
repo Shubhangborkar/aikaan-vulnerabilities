@@ -7,6 +7,8 @@ Repository contents:
 - cve2-proxyuser-shell.md       — Interactive shell access for tunnel user (CVE candidate)
 - cve3-activation-link-password.md — Initial account password exposed in activation link (CVE candidate)
 - cve4-signup-api-bypass.md     — Unauthenticated account creation via exposed sign-up API (CVE candidate)
+- cve5-department-switch.md     — Unauthorized Elevation to Department Admin via API Manipulation (CVE candidate)
+
 
 Author / Reporter:
 - Shubhang Borkar — https://shubhangborkar.medium.com

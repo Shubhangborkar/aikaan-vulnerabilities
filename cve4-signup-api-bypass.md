@@ -7,7 +7,7 @@ Unauthenticated Account Creation via Exposed Sign-Up API Endpoint
 AiKaan Cloud Controller exposes a sign-up API endpoint that allows unauthenticated account creation even when public sign-up is disabled via the web UI. Missing server-side authorization checks enable attackers to programmatically create accounts without administrative approval. This can be used to create multiple accounts to access restricted functionality or for fraud.
 
 ## Affected Systems
-Deployments exposing the sign-up API without server-side authorization
+- AiKaan IoT Platform v3.25.0325-5-g2e9c59796 and earlier
 
 ## Root Cause
 Lack of server-side access control for the registration endpoint
