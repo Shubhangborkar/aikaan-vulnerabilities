@@ -1,49 +1,75 @@
-# CVE Candidate: Shared SSH Private Key Across Devices
+# CVE-2025-57601: Shared Hard-coded SSH Private Key in AiKaan Cloud Controller Enables Device Impersonation
 
-## Title
-Use of Shared Hardcoded SSH Private Key in AiKaan Cloud Controller Remote Access Workflow Enables Device Impersonation
+| Field | Value |
+|---|---|
+| CVE ID | [CVE-2025-57601](https://www.cve.org/CVERecord?id=CVE-2025-57601) |
+| Status | **Published** (22 Sep 2025) |
+| Vendor | AiKaan Labs Pvt Ltd (aikaan.io) |
+| Product | AiKaan Cloud Controller (IoT/edge device management platform) |
+| Affected version | v3.25.0325-5-g2e9c59796 and earlier |
+| Fixed version | None published by the vendor |
+| Weakness | CWE-798: Use of Hard-coded Credentials |
+| CVSS v3.1 | 9.8 Critical, `AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H` |
+| Attack type | Remote |
+| Reporter | Shubhang Borkar |
 
-## Description
-AiKaan Cloud Controller uses a single hardcoded SSH private key and the username `proxyuser` for remote terminal access to all managed IoT/edge devices.
+## Summary
 
-When an administrator initiates “Open Remote Terminal” from the AiKaan dashboard, the controller sends this same static private key to the target device.  
-The device then uses it to establish a reverse SSH tunnel to a remote access server, enabling browser-based SSH access for the administrator.
+AiKaan Cloud Controller uses one hard-coded SSH private key, tied to the username `proxyuser`, for remote terminal access to every managed IoT and edge device. The same key is reused across all customer environments. Anyone who obtains it can impersonate any managed device and open unauthorized reverse SSH tunnels.
 
-Because the same `proxyuser` account and SSH key are reused across all customer environments:
+## Affected Component
 
-- An attacker who obtains the key (e.g., by intercepting it in transit, extracting it from the remote access server, or from a compromised admin account) can impersonate any managed device.  
-- They can establish unauthorized reverse SSH tunnels and interact with devices without the owner’s consent.
+The "Open Remote Terminal" workflow. The controller sends the same static `proxyuser` private key to the target device, and the device uses it to open a reverse SSH tunnel to the remote-access server. That tunnel is what gives the administrator browser-based SSH.
 
-This is a design flaw in the authentication model: compromise of a single key compromises the trust boundary between the controller and devices.
+## Impact
 
-**Companion Advisory:** This issue is related to “Improper Access Control in AiKaan Cloud Controller Allows Interactive Shell Access for Reverse Tunnel User,” which describes how the `proxyuser` account can be leveraged to gain an interactive shell on the remote access server.
-
-## Affected Systems
-- AiKaan Cloud Controller v3.25.0325-5-g2e9c59796 and earlier  
-- All IoT/edge devices managed by affected controllers
-
-## Root Cause
-Use of a single static SSH private key for `proxyuser` across all customers and devices, with no per-device key isolation or rotation.
+- Impersonation of any managed device toward the remote-access server.
+- Unauthorized reverse SSH tunnels to devices, without the owner's consent.
+- One leaked key breaks the trust boundary between the controller and every device, across all customers.
+- Combined with CVE-2025-57602, it gives an interactive shell on the remote-access server and a pivot into other customers' devices.
 
 ## Proof of Concept (Sanitized)
-1. Initiate “Open Remote Terminal” from AiKaan dashboard.  
-2. Observe the controller sending the static SSH private key to the device.  
-3. The device establishes a reverse SSH tunnel to the remote access server.  
-4. Reuse of the same key across environments allows impersonation of devices and unauthorized tunnel creation.
 
-## Exploitability
-Confirmed in a controlled research environment. 
+1. In the AiKaan dashboard, start "Open Remote Terminal" for a device you control.
+2. Watch the controller send the static `proxyuser` private key to that device.
+3. Do the same for a second device, or from a second tenant. The same key is delivered each time.
+4. Reuse the key from any host to authenticate to the remote-access server as `proxyuser`.
+
+The private key and server addresses are not published.
+
+## Root Cause
+
+A single static credential is shared by all devices and tenants. There is no per-device key, no rotation and no certificate-based scoping.
+
+## Remediation
+
+- Issue a unique key or short-lived SSH certificate to each device and each session, through an SSH CA with expiry and principal restrictions.
+- Revoke and rotate the current `proxyuser` key on every remote-access server.
+- Never send long-lived private keys to devices. Generate keys on the device and send only the public part.
+- Restrict `proxyuser` to port forwarding only (see CVE-2025-57602).
 
 ## Timeline
-- **16 Feb 2025** — Vulnerability discovered  
-- **07 May 2025** — Vendor notified (no response received)  
-- **08 Aug 2025** — Public disclosure
 
-## Reporter
-Shubhang Borkar — [https://shubhangborkar.medium.com](https://shubhangborkar.medium.com)
-
-## References
-- This public advisory (this file)  
+- **16 Feb 2025**: Vulnerability discovered; vendor first contacted.
+- **07 May 2025**: Full technical details sent to the vendor. No response received.
+- **08 Aug 2025**: Public advisory published.
+- **11 Sep 2025**: CVE-2025-57601 reserved by MITRE.
+- **22 Sep 2025**: CVE record published.
 
 ## Vendor Status
-Vendor notified but has not responded or confirmed a fix at the time of publication.
+
+The vendor was notified and did not respond. No fix has been confirmed.
+
+## Related
+
+- [CVE-2025-57602](cve2-proxyuser-shell.md): the `proxyuser` account gets an interactive shell.
+
+## Credits
+
+Discovered and reported by Shubhang Borkar ([LinkedIn](https://www.linkedin.com/in/shubhangborkar), [Medium](https://shubhangborkar.medium.com)).
+
+## References
+
+- https://www.cve.org/CVERecord?id=CVE-2025-57601
+- https://nvd.nist.gov/vuln/detail/CVE-2025-57601
+- https://cwe.mitre.org/data/definitions/798.html
